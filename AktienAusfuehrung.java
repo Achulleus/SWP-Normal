@@ -1,8 +1,5 @@
 package aktien;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -10,9 +7,31 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
@@ -47,7 +66,6 @@ public class AktienAusfuehrung {
 		tabelleErstellen();
 		datenbankeingabe();
 		//datenbankausgabe();
-		
 	}
 	
 	public static void eingabe() {
@@ -251,3 +269,4 @@ public class AktienAusfuehrung {
         }
     }*/
 }
+
