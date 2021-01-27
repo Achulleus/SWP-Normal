@@ -59,6 +59,12 @@ public class AktienFenster {
         ((AbstractRenderer) plot.getRenderer()).setAutoPopulateSeriesStroke(false);
         ((AbstractRenderer) plot.getRenderer()).setSeriesPaint(0,  new Color(0, 0, 0));
         
+        if(AktienAusfuehrung.closeWerte.get(AktienAusfuehrung.closeWerte.size() -1) > AktienAusfuehrung.d200Schnitt.get(AktienAusfuehrung.d200Schnitt.size() -1) ){
+        	chart.getPlot().setBackgroundPaint(Color.GREEN);
+        }else {
+        	chart.getPlot().setBackgroundPaint(Color.pink);
+        }
+        
         return chart;
 	}
 }
