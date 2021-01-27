@@ -24,6 +24,7 @@ public class AktienFenster {
 		this.jframe = new JFrame(fenstername);
 		this.jframe.setSize(700, 500);
 		this.chartpanel = new ChartPanel(chartErstellen(fenstername));
+		this.jframe.add(this.chartpanel);
 		this.jframe.setVisible(true);
 	}
 	

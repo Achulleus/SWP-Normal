@@ -1,8 +1,5 @@
 package aktien;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -10,9 +7,31 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
+
+import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.PieChart;
+import javafx.scene.chart.XYChart;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import org.apache.commons.io.IOUtils;
 import org.json.JSONException;
@@ -34,7 +53,7 @@ public class AktienAusfuehrung {
 	
 	public static void main(String[] args){
 		eingabe();
-		AktienFenster a = new AktienFenster(aktie);
+		
 		
 		try {
 			getWert(URL);
@@ -47,7 +66,7 @@ public class AktienAusfuehrung {
 		tabelleErstellen();
 		datenbankeingabe();
 		//datenbankausgabe();
-		
+		AktienFenster a = new AktienFenster(aktie);
 	}
 	
 	public static void eingabe() {
@@ -96,11 +115,11 @@ public class AktienAusfuehrung {
 		try {
             con = DriverManager.getConnection("jdbc:mysql://"+hostname+"/"+db+"?user="+user+"&password="+password+"&serverTimezone=UTC");
             Statement myStat = con.createStatement();
-            String sql = "CREATE TABLE "+ aktie +" if not exists(Datum dateTime not null Primary Key, closeWert double)";
+            String sql = "CREATE TABLE if not exists "+ aktie +" (Datum date not null Primary Key, closeWert double)";
             myStat.execute(sql);
             
             Statement myStatHS = con.createStatement();
-            String sqlHS = "CREATE TABLE 200Schnitt " + aktie + " if not exists(Datum dateTime not null Primary Key, 200Schnitt double)";
+            String sqlHS = "CREATE TABLE 200Schnitt if not exists " + aktie + " (Datum date not null Primary Key, 200Schnitt double)";
             myStat.execute(sqlHS);
             
             con.close();
@@ -127,7 +146,7 @@ public class AktienAusfuehrung {
             Statement myStat = con.createStatement();
             
             for(int i = 0; i < daten.size(); i++) {
-            	PreparedStatement pstatement = con.prepareStatement("INSERT INTO "+ aktie +" values( ?, ?)");
+            	PreparedStatement pstatement = con.prepareStatement("REPLACE INTO "+ aktie +" values( ?, ?)");
                 pstatement.setDate(1, Date.valueOf(daten.get(i)));
                 pstatement.setDouble(2, closeWerte.get(i));
                 pstatement.executeUpdate();  
@@ -137,9 +156,13 @@ public class AktienAusfuehrung {
             d200SchnittBerechnen(con);
             
             for(int i = 0; i < daten.size(); i++) {
-            	PreparedStatement pstatement = con.prepareStatement("INSERT INTO 200Schnitt " + aktie + " values( ?, ?)");
+            	PreparedStatement pstatement = con.prepareStatement("REPLACE INTO 200Schnitt" + aktie + " values( ?, ?)");
                 pstatement.setDate(1, Date.valueOf(daten.get(i)));
-                pstatement.setDouble(2, d200Schnitt.get(i));
+                int temp = 0;
+                if(i > 200) {
+                	temp = i -200;
+                }
+                pstatement.setDouble(2, d200Schnitt.get(temp));
                 pstatement.executeUpdate();  
             }
             
@@ -179,7 +202,7 @@ public class AktienAusfuehrung {
 		try {
         for(int i = 0; i < daten.size() - 200; i++) {
             	PreparedStatement pstatement = connection.prepareStatement("with temp as (" + 
-            		"    select closeWert from " + aktie + " where day <= ? order by Datum desc limit 200)" + 
+            		"    select closeWert from " + aktie + " where Datum <= ? order by Datum desc limit 200)" + 
             		"    select avg(closeWert) from temp"); 
 				pstatement.setDate(1, Date.valueOf(daten.get(i)));
 				ResultSet rs = pstatement.executeQuery();
@@ -251,3 +274,4 @@ public class AktienAusfuehrung {
         }
     }*/
 }
+
