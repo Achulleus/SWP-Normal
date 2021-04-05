@@ -8,6 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,39 +43,71 @@ import org.json.JSONObject;
 public class AktienAusfuehrung {
 	
 	public static String aktie;
+	public static String datei = null;
 	public static String URL = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=" + aktie + "&outputsize=full&apikey=GV8OZAQLF4YSTSGD";
 	public static ArrayList<LocalDate> daten = new ArrayList<LocalDate>(); 
 	public static ArrayList<Double> closeWerte = new ArrayList<Double>();
 	public static ArrayList<Double> d200Schnitt = new ArrayList<Double>();
+	public static ArrayList<String> aktien = new ArrayList<String>();
 	
 	final static String hostname = "localhost";
 	final static String port = "3306";
 	final static String db = "aktien";
 	final static String user = "root";
-	final static String password = "1234";
+	final static String password = "";
 	
 	public static void main(String[] args){
-		eingabe();
+		ladeDatei(datei);
 		
+		for(int q = 0; q < aktien.size(); q++) {
+			eingabe(q);
 		
-		try {
-			getWert(URL);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+			try {
+				getWert(URL);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		
+			tabelleErstellen();
+			datenbankeingabe();
+			//datenbankausgabe();
+			AktienFenster a = new AktienFenster(aktie);
 		}
-		
-		tabelleErstellen();
-		datenbankeingabe();
-		//datenbankausgabe();
-		AktienFenster a = new AktienFenster(aktie);
 	}
 	
-	public static void eingabe() {
-		Scanner sc = new Scanner(System.in);
+	public static void ladeDatei(String datName) {
+		File file = new File(datName);
+		
+		if(!file.canRead() || !file.isFile()) System.exit(0);
+			
+			BufferedReader in = null;
+		
+		try {
+			in = new BufferedReader(new FileReader(datName));
+			String zeile = null;
+			while((zeile = in.readLine()) != null) {
+				aktien.add(zeile);
+			}
+		}catch(IOException e) {
+			e.printStackTrace();
+		}finally {
+			if(in != null) {
+				try {
+					in.close();
+				}catch(IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+	
+	public static void eingabe(int q) {
+		/* Scanner sc = new Scanner(System.in);
 		System.out.println("Welchen Aktienkurs wollen Sie dargestellt haben?");
-		aktie = sc.next();
+		aktie = sc.next(); */
+		aktie = aktien.get(q);
 		URL = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=" + aktie + "&outputsize=full&apikey=GV8OZAQLF4YSTSGD";
 	}
 	
@@ -82,7 +117,7 @@ public class AktienAusfuehrung {
 			json = json.getJSONObject("Time Series (Daily)");
 			for(int i = 0; i < json.length(); i++){
 				daten.add(LocalDate.parse((CharSequence)json.names().get(i)));
-				closeWerte.add(json.getJSONObject(LocalDate.parse((CharSequence)json.names().get(i)).toString()).getDouble("4. close"));
+				closeWerte.add(json.getJSONObject(LocalDate.parse((CharSequence)json.names().get(i)).toString()).getDouble("5. adusted close"));
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
