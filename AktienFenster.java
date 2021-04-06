@@ -2,6 +2,8 @@ package aktien;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 
 import javax.swing.JFrame;
@@ -21,7 +23,7 @@ public class AktienFenster {
 	JFrame jframe;
 	ChartPanel chartpanel;
 	
-	public static String file = null;
+	public File file = null;
 	
 	public AktienFenster(String fenstername) {
 		this.jframe = new JFrame(fenstername);
@@ -29,6 +31,7 @@ public class AktienFenster {
 		this.chartpanel = new ChartPanel(chartErstellen(fenstername));
 		this.jframe.add(this.chartpanel);
 		this.jframe.setVisible(true);
+		this.file = new File ("/Users/philipp/Documents/Htl/4.Klasse/SWP_Java/Aktien/Charts/" + fenstername + "_" + LocalDate.now() + ".png");
 	}
 	
 	public JFreeChart chartErstellen(String fenstername) {
@@ -69,8 +72,11 @@ public class AktienFenster {
         	chart.getPlot().setBackgroundPaint(Color.pink);
         }
         
-        ChartUtils.saveChartAsPNG(file, chart, 500, 500);
-        
+        try {
+        	ChartUtils.saveChartAsPNG(file, chart, 1000, 600);
+        }catch(IOException e) {
+        	e.printStackTrace();
+        }
         return chart;
 	}
 }

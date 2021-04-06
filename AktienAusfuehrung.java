@@ -43,7 +43,7 @@ import org.json.JSONObject;
 public class AktienAusfuehrung {
 	
 	public static String aktie;
-	public static String datei = null;
+	public static String datei = "DateiEinlesen.txt";
 	public static String URL = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol=" + aktie + "&outputsize=full&apikey=GV8OZAQLF4YSTSGD";
 	public static ArrayList<LocalDate> daten = new ArrayList<LocalDate>(); 
 	public static ArrayList<Double> closeWerte = new ArrayList<Double>();
