@@ -14,7 +14,7 @@ import java.util.Scanner;
 
 public class AktienSimulationAusfuehrung {
 
-    private static int depot = 100000;
+    private static float depot = 100000;
     private static ArrayList<String> aktien = new ArrayList<String>();
     private static String datei ="DateiEinlesen.txt";
     private static LocalDate startdate = LocalDate.ofYearDay(2010, 1);
@@ -101,7 +101,7 @@ public class AktienSimulationAusfuehrung {
         }
     }
 
-    /*public static void datenbankeingabe() {
+    public static void datenbankeingabeBuyAndHold(String aktie, LocalDate d, float depotwert, float aktienwert, boolean gekauft) {
         Connection con = null;
 
         try {
@@ -114,26 +114,13 @@ public class AktienSimulationAusfuehrung {
             con = DriverManager.getConnection("jdbc:mysql://"+hostname+"/"+db+"?user="+user+"&password="+password+"&serverTimezone=UTC");
             Statement myStat = con.createStatement();
 
-            for(int i = 0; i < daten.size(); i++) {
-                PreparedStatement pstatement = con.prepareStatement("REPLACE INTO "+ aktie +" values( ?, ?)");
-                pstatement.setDate(1, Date.valueOf(daten.get(i)));
-                pstatement.setDouble(2, closeWerte.get(i));
-                pstatement.executeUpdate();
-            }
-
-            ordnen(con);
-            d200SchnittBerechnen(con);
-
-            for(int i = 0; i < daten.size(); i++) {
-                PreparedStatement pstatement = con.prepareStatement("REPLACE INTO 200Schnitt" + aktie + " values( ?, ?)");
-                pstatement.setDate(1, Date.valueOf(daten.get(i)));
-                int temp = 0;
-                if(i > 200) {
-                    temp = i -200;
-                }
-                pstatement.setDouble(2, d200Schnitt.get(temp));
-                pstatement.executeUpdate();
-            }
+            PreparedStatement pstatement = con.prepareStatement("INSERT INTO KaufstatistikBuyAndHold values( ?, ?, ?, ?, ?)");
+            pstatement.setDate(1, Date.valueOf(d));
+            pstatement.setDouble(2, depotwert);
+            pstatement.setDouble(3, aktienwert);
+            pstatement.setString(4, aktie);
+            pstatement.setBoolean(5, gekauft);
+            pstatement.executeUpdate();
 
             con.close();
         }
@@ -143,7 +130,69 @@ public class AktienSimulationAusfuehrung {
             System.out.println("Error: " + sqle.getErrorCode());
             sqle.printStackTrace();
         }
-    }*/
+    }
+
+        public static void datenbankeingabe200Schnitt(String aktie, LocalDate d, float depotwert, float aktienwert, boolean gekauft) {
+         Connection con = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            con = DriverManager.getConnection("jdbc:mysql://"+hostname+"/"+db+"?user="+user+"&password="+password+"&serverTimezone=UTC");
+            Statement myStat = con.createStatement();
+
+            PreparedStatement pstatement = con.prepareStatement("INSERT INTO Kaufstatistik200Schnitt values( ?, ?, ?, ?, ?)");
+            pstatement.setDate(1, Date.valueOf(d));
+            pstatement.setDouble(2, depotwert);
+            pstatement.setDouble(3, aktienwert);
+            pstatement.setString(4, aktie);
+            pstatement.setBoolean(5, gekauft);
+            pstatement.executeUpdate();
+
+            con.close();
+        }
+        catch (SQLException sqle) {
+            System.out.println("SQLException: " + sqle.getMessage());
+            System.out.println("SQLState: " + sqle.getSQLState());
+            System.out.println("Error: " + sqle.getErrorCode());
+            sqle.printStackTrace();
+        }
+    }
+
+        public static void datenbankeingabeProzent(String aktie, LocalDate d, float depotwert, float aktienwert, boolean gekauft) {
+         Connection con = null;
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            con = DriverManager.getConnection("jdbc:mysql://"+hostname+"/"+db+"?user="+user+"&password="+password+"&serverTimezone=UTC");
+            Statement myStat = con.createStatement();
+
+            PreparedStatement pstatement = con.prepareStatement("INSERT INTO KaufstatistikProzent values( ?, ?, ?, ?, ?)");
+            pstatement.setDate(1, Date.valueOf(d));
+            pstatement.setDouble(2, depotwert);
+            pstatement.setDouble(3, aktienwert);
+            pstatement.setString(4, aktie);
+            pstatement.setBoolean(5, gekauft);
+            pstatement.executeUpdate();
+
+            con.close();
+        }
+        catch (SQLException sqle) {
+            System.out.println("SQLException: " + sqle.getMessage());
+            System.out.println("SQLState: " + sqle.getSQLState());
+            System.out.println("Error: " + sqle.getErrorCode());
+            sqle.printStackTrace();
+        }
+    }
 
     public static int datenbankDatenSplit(LocalDate d, String aktie) {
         if(!ueberpruefen(d)) return 0;
@@ -182,10 +231,10 @@ public class AktienSimulationAusfuehrung {
         return splitwert;
     }
 
-    public static int datenbankDaten(LocalDate d, String aktie) {
+    public static float datenbankDaten(LocalDate d, String aktie) {
         if(!ueberpruefen(d)) return 0;
         String temp;
-        int closeWert = 0;
+        float closeWert = 0;
         Connection con = null;
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -198,7 +247,7 @@ public class AktienSimulationAusfuehrung {
             ResultSet reSe = myStat.executeQuery("Select closeWert from " + aktie + "where Datum = " + d + ";");
             if (reSe.next()) {
                 temp = reSe.getString(1);
-                closeWert = Integer.parseInt(temp);
+                closeWert = Float.parseFloat(temp);
                 return closeWert;
             } else {
                 return 0;
@@ -219,10 +268,10 @@ public class AktienSimulationAusfuehrung {
         return closeWert;
     }
 
-    public static int datenbankDaten200(LocalDate d, String aktie) {
+    public static float datenbankDaten200(LocalDate d, String aktie) {
         if(!ueberpruefen(d)) return 0;
         String temp;
-        int d200Schnitt = 0;
+        float d200Schnitt = 0;
         Connection con = null;
         try {
             Class.forName("com.mysql.jdbc.Driver");
@@ -235,7 +284,7 @@ public class AktienSimulationAusfuehrung {
             ResultSet reSe = myStat.executeQuery("Select 200Schnitt from 200Schnitt" + aktie + "where Datum = " + d + ";");
             if (reSe.next()) {
                 temp = reSe.getString(1);
-                d200Schnitt = Integer.parseInt(temp);
+                d200Schnitt = Float.parseFloat(temp);
                 return d200Schnitt;
             } else {
                 return 0;
@@ -256,8 +305,8 @@ public class AktienSimulationAusfuehrung {
         return d200Schnitt;
     }
 
-    public static int ueberpruefendatenbank(LocalDate d, String aktie){
-        int closeWert = 0;
+    public static float ueberpruefendatenbank(LocalDate d, String aktie){
+        float closeWert = 0;
 
         closeWert = datenbankDaten(d, aktie);
 
@@ -273,8 +322,8 @@ public class AktienSimulationAusfuehrung {
         return closeWert;
     }
 
-    public static int ueberpruefendatenbank200(LocalDate d, String aktie){
-        int d200Schnitt = 0;
+    public static float ueberpruefendatenbank200(LocalDate d, String aktie){
+        float d200Schnitt = 0;
 
         d200Schnitt = datenbankDaten200(d, aktie);
 
@@ -290,18 +339,21 @@ public class AktienSimulationAusfuehrung {
         return d200Schnitt;
     }
 
-    public static int buyAndHold(String aktie){
-        int closeWert = 0;
-        int tempdepot = depot;
-        int tempaktien = 0;
+    public static float buyAndHold(String aktie){
+        float closeWert = 0;
+        float tempdepot = depot;
+        float tempaktien = 0;
         Period diffdays = Period.between(startdate, enddate);
         int laenge = diffdays.getDays();
         int splitwert = 0;
+        boolean gekauft = false;
 
         closeWert = ueberpruefendatenbank(startdate, aktie);
 
         tempaktien = closeWert/tempdepot;
         tempdepot = tempdepot - (closeWert * tempaktien);
+        gekauft = true;
+        datenbankeingabeBuyAndHold(aktie, startdate, tempdepot, tempaktien, gekauft);
 
         for(int i = 0; i < laenge; i++){
             splitwert = datenbankDatenSplit(startdate.plusDays(i), aktie);
@@ -311,16 +363,19 @@ public class AktienSimulationAusfuehrung {
         }
 
         closeWert = ueberpruefendatenbank(enddate, aktie);
-
         tempdepot = tempdepot + (closeWert * tempaktien);
+        tempaktien = 0;
+        gekauft = false;
+        datenbankeingabeBuyAndHold(aktie, enddate, tempdepot, tempaktien, gekauft);
+
         return tempdepot;
     }
 
-    public static int d200Schnitt(String aktie){
-        int closeWert = 0;
-        int d200 = 0;
-        int tempdepot = depot;
-        int tempaktien = 0;
+    public static float d200Schnitt(String aktie){
+        float closeWert = 0;
+        float d200 = 0;
+        float tempdepot = depot;
+        float tempaktien = 0;
         int laenge = 0;
         boolean gekauft = false;
         int splitwert = 0;
@@ -343,12 +398,14 @@ public class AktienSimulationAusfuehrung {
                         tempaktien = closeWert / tempdepot;
                         tempdepot = tempdepot - (closeWert * tempaktien);
                         gekauft = true;
+                        datenbankeingabe200Schnitt(aktie, startdate.plusDays(i), tempdepot, tempaktien, gekauft);
                     }
                 }else{
                     if(closeWert <= d200){
                         tempdepot = tempdepot + (tempaktien * closeWert);
                         tempaktien = 0;
                         gekauft = false;
+                        datenbankeingabe200Schnitt(aktie, startdate.plusDays(i), tempdepot, tempaktien, gekauft);
                     }
                 }
             }
@@ -360,19 +417,20 @@ public class AktienSimulationAusfuehrung {
             tempdepot = tempdepot + (tempaktien * closeWert);
             tempaktien = 0;
             gekauft = false;
+            datenbankeingabe200Schnitt(aktie, enddate, tempdepot, tempaktien, gekauft);
         }
 
         return tempdepot;
     }
 
-    public static int prozent(String aktie){
-        int closeWert = 0;
-        int d200 = 0;
-        int tempdepot = depot;
-        int tempaktien = 0;
+    public static float prozent(String aktie){
+        float closeWert = 0;
+        float d200 = 0;
+        float tempdepot = depot;
+        float tempaktien = 0;
         int laenge = 0;
         boolean gekauft = false;
-        int prozente = 0;
+        float prozente = 0;
         int splitwert = 0;
 
         Period diffdays = Period.between(startdate, enddate);
@@ -394,12 +452,14 @@ public class AktienSimulationAusfuehrung {
                         tempaktien = closeWert / tempdepot;
                         tempdepot = tempdepot - (closeWert * tempaktien);
                         gekauft = true;
+                        datenbankeingabeProzent(aktie, startdate.plusDays(i), tempdepot, tempaktien, gekauft);
                     }
                 }else{
                     if(closeWert <= (d200 - prozente)){
                         tempdepot = tempdepot + (tempaktien * closeWert);
                         tempaktien = 0;
                         gekauft = false;
+                        datenbankeingabeProzent(aktie, startdate.plusDays(i), tempdepot, tempaktien, gekauft);
                     }
                 }
             }
@@ -411,15 +471,16 @@ public class AktienSimulationAusfuehrung {
             tempdepot = tempdepot + (tempaktien * closeWert);
             tempaktien = 0;
             gekauft = false;
+            datenbankeingabeProzent(aktie, enddate, tempdepot, tempaktien, gekauft);
         }
 
         return tempdepot;
     }
 
     public static void ausgabe(String aktie){
-        int depotBuyAndHold = buyAndHold(aktie);
-        int depot200Schnitt = d200Schnitt(aktie);
-        int depotProzent = prozent(aktie);
+        float depotBuyAndHold = buyAndHold(aktie);
+        float depot200Schnitt = d200Schnitt(aktie);
+        float depotProzent = prozent(aktie);
 
         System.out.println("Zeit des Versuches: Von " + startdate + " bis " + enddate);
         System.out.println("Mit folgenden Aktien wurden Berechnungen durchgeführt: ");
