@@ -350,7 +350,7 @@ public class AktienSimulationAusfuehrung {
     public static float buyAndHold(String aktie){
         float closeWert = 0;
         float tempdepot = depot;
-        float tempaktien = 0;
+        int tempaktien = 0;
         Period diffdays = Period.between(startdate, enddate);
         int laenge = diffdays.getDays();
         int splitwert = 0;
@@ -358,7 +358,7 @@ public class AktienSimulationAusfuehrung {
 
         closeWert = ueberpruefendatenbank(startdate, aktie);
 
-        tempaktien = closeWert/tempdepot;
+        tempaktien = (int) (closeWert/tempdepot);
         tempdepot = tempdepot - (closeWert * tempaktien);
         gekauft = true;
         datenbankeingabeBuyAndHold(aktie, startdate, tempdepot, tempaktien, gekauft);
@@ -383,7 +383,7 @@ public class AktienSimulationAusfuehrung {
         float closeWert = 0;
         float d200 = 0;
         float tempdepot = depot;
-        float tempaktien = 0;
+        int tempaktien = 0;
         int laenge = 0;
         boolean gekauft = false;
         int splitwert = 0;
@@ -403,7 +403,7 @@ public class AktienSimulationAusfuehrung {
             if(closeWert != 0) {
                 if(gekauft == false) {
                     if(closeWert >= d200) {
-                        tempaktien = closeWert / tempdepot;
+                        tempaktien = (int) (closeWert / tempdepot);
                         tempdepot = tempdepot - (closeWert * tempaktien);
                         gekauft = true;
                         datenbankeingabe200Schnitt(aktie, startdate.plusDays(i), tempdepot, tempaktien, gekauft);
@@ -435,7 +435,7 @@ public class AktienSimulationAusfuehrung {
         float closeWert = 0;
         float d200 = 0;
         float tempdepot = depot;
-        float tempaktien = 0;
+        int tempaktien = 0;
         int laenge = 0;
         boolean gekauft = false;
         float prozente = 0;
@@ -457,7 +457,7 @@ public class AktienSimulationAusfuehrung {
             if(closeWert != 0) {
                 if(gekauft == false) {
                     if(closeWert >= (d200 + prozente)) {
-                        tempaktien = closeWert / tempdepot;
+                        tempaktien = (int) (closeWert / tempdepot);
                         tempdepot = tempdepot - (closeWert * tempaktien);
                         gekauft = true;
                         datenbankeingabeProzent(aktie, startdate.plusDays(i), tempdepot, tempaktien, gekauft);
