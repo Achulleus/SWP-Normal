@@ -14,11 +14,16 @@ import java.util.Scanner;
 
 public class AktienSimulationAusfuehrung {
 
-    private static float depot = 100000;
+    private static float depotalles = 100000;
+    private static float depot = 0;
     private static ArrayList<String> aktien = new ArrayList<String>();
     private static String datei ="DateiEinlesen.txt";
     private static LocalDate startdate = LocalDate.ofYearDay(2010, 1);
     private static LocalDate enddate = LocalDate.now().minusDays(1);
+
+    private static float buyAndHoldGes = 0;
+    private static float d200SchnittGes = 0;
+    private static float prozentGes = 0;
 
     final public static String hostname = "localhost";
     final public static String port = "3306";
@@ -29,10 +34,13 @@ public class AktienSimulationAusfuehrung {
     public static void main(String[] args) {
         ladeDatei(datei);
         tabelleErstellen();
+        depot = depotalles / aktien.size();
 
         for(int i = 0; i < aktien.size(); i++){
-            ausgabe(aktien.get(i));
+            summieren(aktien.get(i));
         }
+
+        ausgabe(buyAndHoldGes, d200SchnittGes, prozentGes);
     }
 
     public static void ladeDatei(String datName) {
@@ -477,19 +485,25 @@ public class AktienSimulationAusfuehrung {
         return tempdepot;
     }
 
-    public static void ausgabe(String aktie){
-        float depotBuyAndHold = buyAndHold(aktie);
-        float depot200Schnitt = d200Schnitt(aktie);
-        float depotProzent = prozent(aktie);
-
+    public static void ausgabe(float buyAndHold, float d200Schnitt, float prozent){
         System.out.println("Zeit des Versuches: Von " + startdate + " bis " + enddate);
         System.out.println("Mit folgenden Aktien wurden Berechnungen durchgeführt: ");
         for(int i = 0; i < aktien.size(); i++) {
             System.out.println(aktien.get(i));
         }
         System.out.println("Ergebnisse:");
-        System.out.println("Buy and Hold: " + depotBuyAndHold);
-        System.out.println("Mit 200-Schnitt:" + depot200Schnitt);
-        System.out.println("Mit Prozent-Methode: " + depotProzent);
+        System.out.println("Buy and Hold: " + buyAndHold);
+        System.out.println("Mit 200-Schnitt:" + d200Schnitt);
+        System.out.println("Mit Prozent-Methode: " + prozent);
+    }
+
+    public static void summieren(String aktie){
+        float depotBuyAndHold = buyAndHold(aktie);
+        float depot200Schnitt = d200Schnitt(aktie);
+        float depotProzent = prozent(aktie);
+
+        buyAndHoldGes = buyAndHoldGes + depotBuyAndHold;
+        d200SchnittGes = d200SchnittGes + depot200Schnitt;
+        prozentGes = prozentGes + depotProzent;
     }
 }
