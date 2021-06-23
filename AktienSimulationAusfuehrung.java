@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -20,6 +21,8 @@ public class AktienSimulationAusfuehrung {
     private static float depot = 0;
     private static ArrayList<String> aktien = new ArrayList<String>();
     private static String datei ="DateiEinlesen.txt";
+    private static String dateisys = "DateiEinlesenSys.txt";
+    public static String dateiDat = "DateiEinlesenDat.txt";
     private static LocalDate startdate = LocalDate.ofYearDay(2010, 1);
     private static LocalDate enddate = LocalDate.now().minusDays(1);
 
@@ -35,6 +38,9 @@ public class AktienSimulationAusfuehrung {
 
     public static void main(String[] args) throws SQLException {
         ladeDatei(datei);
+        DatenbankAktienSimulation.ladeDateiDat(dateiDat);
+        ladeDateiSys(dateisys);
+
         Connection con = DatenbankAktienSimulation.conAufbau();
         DatenbankAktienSimulation.tabelleErstellen(con);
         depot = depotalles / aktien.size();
@@ -60,7 +66,59 @@ public class AktienSimulationAusfuehrung {
             in = new BufferedReader(new FileReader(datName));
             String zeile = null;
             while((zeile = in.readLine()) != null) {
-                aktien.add(zeile);
+                if(zeile.length() <= 5) {
+                    aktien.add(zeile);
+                }else{
+                    System.out.println("Diese Aktie ist nicht zulässig!");
+                }
+            }
+        }catch(IOException e) {
+            e.printStackTrace();
+        }finally {
+            if(in != null) {
+                try {
+                    in.close();
+                }catch(IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public static void ladeDateiSys(String datName) {
+        File file = new File(datName);
+
+        if(!file.canRead() || !file.isFile()) System.exit(0);
+
+        BufferedReader in = null;
+
+        try {
+            in = new BufferedReader(new FileReader(datName));
+            String zeile = null;
+            zeile = in.readLine();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            if(zeile != null){
+                if(true) {
+                    startdate = LocalDate.parse(zeile, formatter);
+                }else{
+                    System.out.println("Das Startdatum ist nicht zulässig!");
+                }
+            }
+            zeile = in.readLine();
+            if(zeile != null){
+                if(true) {
+                    enddate = LocalDate.parse(zeile, formatter);
+                }else{
+                   System.out.println("Das Enddatum ist nicht zulässig!");
+                }
+            }
+            zeile = in.readLine();
+            if(zeile != null){
+                if(Integer.parseInt(zeile) >= 10000 && Integer.parseInt(zeile) <= 1000000) {
+                    depotalles = Integer.parseInt(zeile);
+                }else{
+                    System.out.println("Das Depot ist nicht zulässig!");
+                }
             }
         }catch(IOException e) {
             e.printStackTrace();

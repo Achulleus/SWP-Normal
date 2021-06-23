@@ -1,15 +1,21 @@
 package aktienSimulation;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class DatenbankAktienSimulation {
 
-    final public static String hostname = "localhost";
-    final public static String port = "3306";
-    final public static String db = "aktien";
-    final public static String user = "root";
-    final public static String password = "";
+    public static String hostname = "localhost";
+    public static String port = "3306";
+    public static String db = "aktien";
+    public static String user = "root";
+    public static String password = "";
 
     public static Connection conAufbau() throws SQLException {
         Connection con = null;
@@ -19,6 +25,40 @@ public class DatenbankAktienSimulation {
 
     public static void conAbbau(Connection con) throws SQLException {
         con.close();
+    }
+
+    public static void ladeDateiDat(String datName) {
+        File file = new File(datName);
+
+        if(!file.canRead() || !file.isFile()) System.exit(0);
+
+        BufferedReader in = null;
+
+        try {
+            in = new BufferedReader(new FileReader(datName));
+            String zeile = null;
+            zeile = in.readLine();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
+            if(zeile != null) hostname = zeile;
+            zeile = in.readLine();
+            if(zeile != null) port = zeile;
+            zeile = in.readLine();
+            if(zeile != null) db = zeile;
+            zeile = in.readLine();
+            if(zeile != null) user = zeile;
+            zeile = in.readLine();
+            if(zeile != null) password = zeile;
+        }catch(IOException e) {
+            e.printStackTrace();
+        }finally {
+            if(in != null) {
+                try {
+                    in.close();
+                }catch(IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     public static boolean ueberpruefen(LocalDate d){
@@ -256,5 +296,35 @@ public class DatenbankAktienSimulation {
         }
 
         return d200Schnitt;
+    }
+
+    public static ArrayList<LocalDate> datenbankDatenDatum(LocalDate d, String aktie, Connection con) {
+        if(!ueberpruefen(d)) return null;
+        String temp;
+        LocalDate datum;
+        ArrayList<LocalDate> daten = new ArrayList<LocalDate>();
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            Statement myStat = con.createStatement();
+            ResultSet reSe = myStat.executeQuery("Select Datum from " + aktie + " order by Datum;");
+            if (reSe.next()) {
+                temp = reSe.getString(1);
+                datum = LocalDate.parse(temp);
+                daten.add(datum);
+            }
+            return daten;
+
+        } catch (SQLException sqle) {
+            System.out.println("SQLException: " + sqle.getMessage());
+            System.out.println("SQLState: " + sqle.getSQLState());
+            System.out.println("Error: " + sqle.getErrorCode());
+            sqle.printStackTrace();
+        }
+        return null;
     }
 }
