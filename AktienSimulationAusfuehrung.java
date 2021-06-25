@@ -17,18 +17,21 @@ import static aktienSimulation.AktienSimulationStrategien.*;
 
 public class AktienSimulationAusfuehrung {
 
-    private static float depotalles = 100000;
+    private static float depotalles = 0;
     private static float depot = 0;
     private static ArrayList<String> aktien = new ArrayList<String>();
     private static String datei ="DateiEinlesen.txt";
     private static String dateisys = "DateiEinlesenSys.txt";
     public static String dateiDat = "DateiEinlesenDat.txt";
-    private static LocalDate startdate = LocalDate.ofYearDay(2010, 1);
-    private static LocalDate enddate = LocalDate.now().minusDays(1);
+    private static LocalDate startdate;
+    private static LocalDate enddate;
 
     private static float buyAndHoldGes = 0;
     private static float d200SchnittGes = 0;
     private static float prozentGes = 0;
+    private static float buyAndHoldProzent = 0;
+    private static float d200SchnittProzent = 0;
+    private static float prozentProzent = 0;
 
     /*final public static String hostname = "localhost";
     final public static String port = "3306";
@@ -50,8 +53,9 @@ public class AktienSimulationAusfuehrung {
             summieren(aktien.get(i), con);
         }
 
+        prozentAusrechnen();
         AktienSimulationAusgabe aktienSimulationAusgabe = new AktienSimulationAusgabe(aktien, startdate, enddate);
-        aktienSimulationAusgabe.ausgabe(buyAndHoldGes, d200SchnittGes, prozentGes);
+        aktienSimulationAusgabe.ausgabe(buyAndHoldGes, d200SchnittGes, prozentGes, buyAndHoldProzent, d200SchnittProzent, prozentProzent);
         DatenbankAktienSimulation.conAbbau(con);
     }
 
@@ -98,18 +102,18 @@ public class AktienSimulationAusfuehrung {
             zeile = in.readLine();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             if(zeile != null){
-                if(true) {
+                try {
                     startdate = LocalDate.parse(zeile, formatter);
-                }else{
+                }catch (Exception a){
                     System.out.println("Das Startdatum ist nicht zulässig!");
                 }
             }
             zeile = in.readLine();
             if(zeile != null){
-                if(true) {
+                try {
                     enddate = LocalDate.parse(zeile, formatter);
-                }else{
-                   System.out.println("Das Enddatum ist nicht zulässig!");
+                }catch (Exception a){
+                    System.out.println("Das Startdatum ist nicht zulässig!");
                 }
             }
             zeile = in.readLine();
@@ -569,5 +573,11 @@ public class AktienSimulationAusfuehrung {
         buyAndHoldGes = buyAndHoldGes + depotBuyAndHold;
         d200SchnittGes = d200SchnittGes + depot200Schnitt;
         prozentGes = prozentGes + depotProzent;
+    }
+
+    public static void prozentAusrechnen(){
+        buyAndHoldProzent = buyAndHoldGes / depotalles;
+        d200SchnittProzent = d200SchnittGes / depotalles;
+        prozentProzent = prozentGes / depotalles;
     }
 }

@@ -11,11 +11,11 @@ import java.util.ArrayList;
 
 public class DatenbankAktienSimulation {
 
-    public static String hostname = "localhost";
-    public static String port = "3306";
-    public static String db = "aktien";
-    public static String user = "root";
-    public static String password = "";
+    public static String hostname;
+    public static String port;
+    public static String db;
+    public static String user;
+    public static String password;
 
     public static Connection conAufbau() throws SQLException {
         Connection con = null;
@@ -38,7 +38,7 @@ public class DatenbankAktienSimulation {
             in = new BufferedReader(new FileReader(datName));
             String zeile = null;
             zeile = in.readLine();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             if(zeile != null) hostname = zeile;
             zeile = in.readLine();
             if(zeile != null) port = zeile;
@@ -186,7 +186,7 @@ public class DatenbankAktienSimulation {
         }
         try {
             Statement myStat = con.createStatement();
-            ResultSet reSe = myStat.executeQuery("Select splitwert from " + aktie + "where Datum = " + d + ";");
+            ResultSet reSe = myStat.executeQuery("Select splitwert from " + aktie + " where Datum = " + d + ";");
             if (reSe.next()) {
                 temp = reSe.getString(1);
                 splitwert = Integer.parseInt(temp);

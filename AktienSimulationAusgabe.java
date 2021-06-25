@@ -32,16 +32,16 @@ public class AktienSimulationAusgabe {
         this.enddate = enddate;
     }
 
-    public static void ausgabe(float buyAndHold, float d200Schnitt, float prozent){
+    public static void ausgabe(float buyAndHold, float d200Schnitt, float prozent, float buyAndHoldprozent, float d200Schnittprozent, float prozentProzent){
         System.out.println("Zeit des Versuches: Von " + startdate + " bis " + enddate);
         System.out.println("Mit folgenden Aktien wurden Berechnungen durchgeführt: ");
         for(int i = 0; i < aktien.size(); i++) {
             System.out.println(aktien.get(i));
         }
         System.out.println("Ergebnisse:");
-        System.out.println("Buy and Hold: " + buyAndHold);
-        System.out.println("Mit 200-Schnitt:" + d200Schnitt);
-        System.out.println("Mit Prozent-Methode: " + prozent);
+        System.out.println("Buy and Hold: " + buyAndHold + " (+" + buyAndHoldprozent + ")");
+        System.out.println("Mit 200-Schnitt:" + d200Schnitt + " (+" + d200Schnittprozent + ")");
+        System.out.println("Mit Prozent-Methode: " + prozent + " (+" + prozentProzent + ")");
     }
     /*
     JFrame jframe;

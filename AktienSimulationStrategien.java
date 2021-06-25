@@ -27,7 +27,7 @@ public class AktienSimulationStrategien {
 
         closeWert = DatenbankAktienSimulation.ueberpruefendatenbank(startdate, aktie, con);
 
-        tempaktien = (int) (closeWert/tempdepot);
+        tempaktien = (int) (tempdepot / closeWert);
         tempdepot = tempdepot - (closeWert * tempaktien);
         gekauft = true;
         DatenbankAktienSimulation.datenbankeingabeBuyAndHold(aktie, startdate, tempdepot, tempaktien, gekauft, con);
@@ -72,7 +72,7 @@ public class AktienSimulationStrategien {
             if(closeWert != 0) {
                 if(gekauft == false) {
                     if(closeWert >= d200) {
-                        tempaktien = (int) (closeWert / tempdepot);
+                        tempaktien = (int) (tempdepot / closeWert);
                         tempdepot = tempdepot - (closeWert * tempaktien);
                         gekauft = true;
                         DatenbankAktienSimulation.datenbankeingabe200Schnitt(aktie, startdate.plusDays(i), tempdepot, tempaktien, gekauft, con);
@@ -126,7 +126,7 @@ public class AktienSimulationStrategien {
             if(closeWert != 0) {
                 if(gekauft == false) {
                     if(closeWert >= (d200 + prozente)) {
-                        tempaktien = (int) (closeWert / tempdepot);
+                        tempaktien = (int) (tempdepot / closeWert);
                         tempdepot = tempdepot - (closeWert * tempaktien);
                         gekauft = true;
                         DatenbankAktienSimulation.datenbankeingabeProzent(aktie, startdate.plusDays(i), tempdepot, tempaktien, gekauft, con);
